@@ -3,7 +3,7 @@ import processing.video.*;
 Capture video;
 PImage prev;
 
-float threshold = 50; // increase threshold to decrease motion sensitivity
+float threshold = 60; // increase threshold to decrease motion sensitivity
 
 ArrayList<PointCollection> motionLayers;
 
@@ -29,6 +29,11 @@ void captureEvent(Capture video) {
 }
 
 void draw() {
+  // flip canvas backwards so user's movement is mirrored
+  pushMatrix();
+  scale(-1, 1);
+  translate(-width, 0);
+  
   video.loadPixels();
   prev.loadPixels();
 
@@ -76,6 +81,9 @@ void draw() {
   for (PointCollection layer : motionLayers) {
     layer.show();
   }
+  
+  // flip canvas back around for display
+  popMatrix();
 }
 
 float distSq(float x1, float y1, float z1, float x2, float y2, float z2) {
