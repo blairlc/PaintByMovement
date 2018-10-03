@@ -7,6 +7,12 @@ float threshold = 50; // increase threshold to decrease motion sensitivity
 
 ArrayList<PointCollection> motionLayers;
 
+color startColor = color(255, 0, 0);
+color endColor = color(0, 0, 255);
+int currentColorStep = 0;
+int totalColorSteps = 30;
+boolean colorIncreasing = true;
+
 void setup() {
   size(640, 480);
   frameRate(30);
@@ -25,9 +31,9 @@ void captureEvent(Capture video) {
 void draw() {
   video.loadPixels();
   prev.loadPixels();
-  
+
   background(0);
-  
+
   // uncomment for video background
   //image(video, 0, 0);
 
@@ -37,7 +43,7 @@ void draw() {
   for (int x = 0; x < video.width; x++ ) {
     for (int y = 0; y < video.height; y++ ) {
       int loc = x + y * video.width;
-      
+
       color currentColor = video.pixels[loc];
       float r1 = red(currentColor);
       float g1 = green(currentColor);
@@ -55,9 +61,9 @@ void draw() {
       }
     }
   }
-  
+
   // add PointCollection created this frame to the motion layers
-  motionLayers.add(new PointCollection(motionPixels, color(0, 0, 255)));   
+  motionLayers.add(new PointCollection(motionPixels, getNextColor()));   
 
   // remove layers no longer visible
   for (int i = motionLayers.size()-1; i >= 0; i--) {
@@ -65,7 +71,7 @@ void draw() {
       motionLayers.remove(i);
     }
   }
-  
+
   // show all layers
   for (PointCollection layer : motionLayers) {
     layer.show();
@@ -75,4 +81,26 @@ void draw() {
 float distSq(float x1, float y1, float z1, float x2, float y2, float z2) {
   float d = (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) +(z2-z1)*(z2-z1);
   return d;
+}
+
+// move to the next step in the color spectrum and return it
+// color increases to max then decreases to 0 repeatedly
+// current value / max is passed into lerpColor between start and end of spectrum
+color getNextColor() {
+  if (colorIncreasing) {
+    if (currentColorStep < totalColorSteps) {
+      currentColorStep++;
+    } else {
+      currentColorStep--;
+      colorIncreasing = false;
+    }
+  } else {
+    if (currentColorStep > 0) {
+      currentColorStep--;
+    } else {
+      currentColorStep++;
+      colorIncreasing = true;
+    }
+  }
+  return lerpColor(startColor, endColor, ((float) currentColorStep / (float) totalColorSteps));
 }
