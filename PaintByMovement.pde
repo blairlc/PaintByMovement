@@ -1,7 +1,7 @@
 import processing.video.*;
 
 Capture video;
-PImage prev;
+PImage background;
 
 float threshold = 60; // increase threshold to decrease motion sensitivity
 
@@ -18,13 +18,11 @@ void setup() {
   frameRate(30);
   video = new Capture(this, 640, 480);
   video.start();
-  prev = createImage(video.width, video.height, RGB);
+  background = createImage(video.width, video.height, RGB);
   motionLayers = new ArrayList<PointCollection>();
 }
 
 void captureEvent(Capture video) {
-  prev.copy(video, 0, 0, video.width, video.height, 0, 0, prev.width, prev.height);
-  prev.updatePixels();
   video.read();
 }
 
@@ -35,7 +33,7 @@ void draw() {
   translate(-width, 0);
   
   video.loadPixels();
-  prev.loadPixels();
+  background.loadPixels();
 
   background(0);
 
@@ -53,10 +51,10 @@ void draw() {
       float r1 = red(currentColor);
       float g1 = green(currentColor);
       float b1 = blue(currentColor);
-      color prevColor = prev.pixels[loc];
-      float r2 = red(prevColor);
-      float g2 = green(prevColor);
-      float b2 = blue(prevColor);
+      color backgroundColor = background.pixels[loc];
+      float r2 = red(backgroundColor);
+      float g2 = green(backgroundColor);
+      float b2 = blue(backgroundColor);
 
       float d = distSq(r1, g1, b1, r2, g2, b2); 
 
@@ -111,4 +109,9 @@ color getNextColor() {
     }
   }
   return lerpColor(startColor, endColor, ((float) currentColorStep / (float) totalColorSteps));
+}
+
+void mouseClicked() {
+  background.copy(video, 0, 0, video.width, video.height, 0, 0, background.width, background.height);
+  background.updatePixels();
 }
