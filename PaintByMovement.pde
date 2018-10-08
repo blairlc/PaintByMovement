@@ -15,17 +15,36 @@ int currentColorStep = 0;
 int totalColorSteps = 30;
 boolean colorIncreasing = true;
 
+int videoWidth = 640, videoHeight = 480;
+int topPadding = 0; // total vertical padding to preserve ratio, half top and half bottom
+int sidePadding = 0; // total horizontal padding
 
 int lastLayerTime;
 int layerDelay = 67; // time between layers
 
 void setup() {
-  size(640, 480);
-  video = new Capture(this, 640, 480);
+  fullScreen();
+  video = new Capture(this, videoWidth, videoHeight);
   video.start();
   background = createImage(video.width, video.height, RGB);
   updatedPainting = createImage(video.width, video.height, RGB);
   motionLayers = new ArrayList<PointCollection>();
+  
+  float videoRatio = (float) videoWidth / videoHeight;
+  float screenRatio = (float) width / height;
+  
+  println("videoRatio: " + videoRatio + " screenRatio: " + screenRatio);
+  
+  if (videoRatio > screenRatio) {
+    // space top and bottom
+    float widthMultiplier = (float) width / videoWidth;
+    topPadding = (int) (height - (videoHeight * widthMultiplier));
+  } else if (screenRatio > videoRatio) {
+    // space on sides
+    float heightMultiplier = (float) height / videoHeight;
+    println("multiplier: " + heightMultiplier);
+    sidePadding = (int) (width - (videoWidth * heightMultiplier));
+  }
 }
 
 void captureEvent(Capture video) {
@@ -86,7 +105,8 @@ void draw() {
 
   // show all layers
   updatePainting();
-  image(updatedPainting, 0, 0);
+  imageMode(CENTER);
+  image(updatedPainting, width/2, height/2, width - sidePadding, height - topPadding);
 
   // flip canvas back around for display
   popMatrix();
