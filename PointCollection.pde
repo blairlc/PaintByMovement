@@ -11,7 +11,7 @@ class PointCollection {
     pointColor = pColor;
   }
 
- /* //<>//
+ /*  //<>//
   * Draws every point in this layer using point()
   * Method left for future use/debugging but it is too slow 
   * to use for every layer every frame.
