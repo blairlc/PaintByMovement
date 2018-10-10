@@ -1,5 +1,5 @@
 class PointCollection {
-  static final int lifespan = 3000; // how many millis the layer is visible
+  static final int lifespan = 5000; // how many millis the layer is visible
   
   color pointColor;
   ArrayList<PVector> points;
