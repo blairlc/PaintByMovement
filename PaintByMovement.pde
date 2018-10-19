@@ -1,14 +1,15 @@
 import processing.video.*;
 
-final boolean freezeFrameMode = false;
+final boolean freezeFrameMode = false; // layers only saved by moving then freezing
+final boolean freezeFadeMode = true; // layers only saved if motion since last frame
 
 Capture video;
 PImage background;
 
 float motionColorThreshold = 80; // increase threshold to decrease motion sensitivity
 
-// used only in freeze frame mode
-float motionPercentThreshold = .01; // percent of pixels that can change without being considered motion
+// used only in freeze modes
+float motionPercentThreshold = .001; // amount of pixels (out of 1.0) that have to change in one frame to be considered motion
 float motionPixelsThreshold;
 int frozenFrames = 0;
 
@@ -110,6 +111,11 @@ void draw() {
         frozenFrames++;
       } else { // movement since last frame
         frozenFrames = 0;
+      }
+    } else if (freezeFadeMode) {
+      float d = imgDiff(video, prevImage);
+      if (d > motionPixelsThreshold) { // movement since last frame
+        motionLayers.add(new PointCollection(motionPixels, getNextColor()));
       }
     } else {
       motionLayers.add(new PointCollection(motionPixels, getNextColor()));
